@@ -1,103 +1,130 @@
-import { ChevronDown, LogOut } from 'lucide-react';
-import React from 'react'
-import { useState } from 'react';
-import { useEffect } from 'react';
-import { FiMoon } from "react-icons/fi";
-import { IoSunnyOutline } from "react-icons/io5";
+import { ChevronDown, LogOut, Moon, Sun } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../features/logout';
 import { setUserData } from '../redux/userSlice';
+
 function NavBar() {
-     const [isDark,setIsDark]=useState(true)
-     const [menuOpen,setMenuOpen]=useState(false)
-     const dispatch=useDispatch()
-     const {userData}=useSelector(state=>state.user)
-     const name=userData.name || "Guest"
-     const initials=name
-     .split(" ")
-     .map((w)=>w[0])
-     .join("")
-     .slice(0,2)
-     .toUpperCase()
-    
-const handleLogout=async ()=>{
-    await logout()
-    dispatch(setUserData(null))
-}
+  const [isDark, setIsDark] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+  const dispatch = useDispatch();
+  const { userData } = useSelector(state => state.user);
+  const name = userData?.name || 'Guest';
+  const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
-    useEffect(()=>{
-     if(typeof window==undefined)return;
-     const theme=window.localStorage.getItem("theme")
-     const dark=theme?theme=="dark":true
-     document.documentElement.classList.toggle("dark",dark)
-     setIsDark(dark)
-    },[])
+  const handleLogout = async () => {
+    await logout();
+    dispatch(setUserData(null));
+  };
 
-    const toggleTheme=()=>{
-        const next=!isDark
-        setIsDark(next)
-        document.documentElement.classList.toggle("dark",next)
-        window.localStorage.setItem("theme",next?"dark":"light")
-    }
+  useEffect(() => {
+    const theme = window.localStorage.getItem('theme');
+    const dark = theme ? theme === 'dark' : true;
+    document.documentElement.classList.toggle('dark', dark);
+    setIsDark(dark);
+  }, []);
 
-    return (
-        <div className='w-full h-16 bg-white/70 dark:bg-white/[0.03] backdrop-blur-xl border-b border-slate-200/70 dark:border-white/[0.07] flex items-center px-6 gap-6 font-sans transition-colors duration-300'>
-            <div className='flex items-center gap-2.5 shrink-0'>
-                <span className='text-slate-900 dark:text-white font-bold text-[17px] tracking-tight'>
-                    VertexAI
-                </span>
+  useEffect(() => {
+    const handler = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const toggleTheme = () => {
+    const next = !isDark;
+    setIsDark(next);
+    document.documentElement.classList.toggle('dark', next);
+    window.localStorage.setItem('theme', next ? 'dark' : 'light');
+  };
+
+  return (
+    <header
+      className="relative z-30 flex h-14 shrink-0 items-center gap-4 border-b px-5"
+      style={{ background: 'var(--zoo-surface)', borderColor: 'var(--zoo-border)' }}
+    >
+      {/* Logo */}
+      <div className="flex items-center gap-2.5 shrink-0">
+        <img src="/ZooAi.png" alt="ZooAi" className="h-7 w-7 rounded-lg object-contain" />
+        <span className="font-bold text-[16px] tracking-tight" style={{ color: 'var(--zoo-text)' }}>
+          Zoo<span className="zoo-gradient-text">Ai</span>
+        </span>
+      </div>
+
+      <div className="flex-1" />
+
+      {/* Actions */}
+      <div className="flex items-center gap-1.5">
+        <button
+          onClick={toggleTheme}
+          aria-label="Toggle theme"
+          className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors duration-150"
+          style={{ color: 'var(--zoo-text-2)' }}
+          onMouseEnter={e => e.currentTarget.style.background = 'var(--zoo-surface-2)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+        >
+          {isDark ? <Sun size={16} /> : <Moon size={16} />}
+        </button>
+
+        <div className="relative" ref={menuRef}>
+          <button
+            onClick={() => setMenuOpen(p => !p)}
+            className="flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors duration-150"
+            style={{ color: 'var(--zoo-text)' }}
+            onMouseEnter={e => e.currentTarget.style.background = 'var(--zoo-surface-2)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+            aria-label="User menu"
+            aria-expanded={menuOpen}
+          >
+            <div
+              className="flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-bold text-white"
+              style={{ background: 'linear-gradient(135deg, #4f6ef7, #7c5cfc)' }}
+            >
+              {initials}
             </div>
-            <div className='flex-1'/>
-            <div className='flex items-center gap-2 shrink-0'>
-                <button onClick={toggleTheme} className='w-9 h-9 flex items-center justify-center rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors duration-150'>
-                    {isDark?<FiMoon size={18}/>:<IoSunnyOutline size={18}/>}
-                </button>
+            <span className="hidden text-[13px] font-medium sm:inline" style={{ color: 'var(--zoo-text)' }}>
+              {name.split(' ')[0]}
+            </span>
+            <ChevronDown
+              size={13}
+              className={`transition-transform duration-150 ${menuOpen ? 'rotate-180' : ''}`}
+              style={{ color: 'var(--zoo-text-3)' }}
+            />
+          </button>
 
-                <div className='relative ml-1"'>
-                     <button
-                     onClick={()=>setMenuOpen(p=>!p)}
-                     className='flex items-center gap-2 pl-1.5 pr-2 h-10 rounded-lg hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors duration-150'
-                     >
-<div className='w-8 h-8 rounded-full bg-gradient-to-br from-slate-600 to-slate-700 dark:from-slate-200 dark:to-white flex items-center justify-center overflow-hidden ring-1 ring-black/5 dark:ring-white/20'>
-    <span className='text-[12px] font-semibold text-white dark:text-slate-900'>
-{initials}
-    </span>
-</div>
-<span className='text-[13.5px] font-medium text-slate-700 dark:text-slate-200 hidden sm:inline'>{name}</span>
-<ChevronDown size={14}
-              className={`text-slate-400 dark:text-slate-500 transition-transform duration-150 ${
-                menuOpen ? "rotate-180" : ""
-              }`}
-/>
-                     </button>
-
-                     {menuOpen && (
-                        <div className='absolute right-0 mt-2 w-52 bg-white/95 dark:bg-[#12121c]/95 backdrop-blur-xl border border-slate-200 dark:border-white/[0.08] rounded-xl shadow-xl py-1.5 z-50 animate-[fadeIn_0.15s_ease-out]'>
-                          <div className='px-3.5 py-2.5 border-b border-slate-100 dark:border-white/[0.06] flex items-center gap-2.5'>
-
-                          <div className='w-8 h-8 rounded-full bg-gradient-to-br from-slate-600 to-slate-700 dark:from-slate-200 dark:to-white flex items-center justify-center shrink-0 ring-1 ring-black/5 dark:ring-white/20'>
-                            <span className='text-[12px] font-semibold text-white dark:text-slate-900'>
-                                {initials}
-                            </span>
-                          </div>
-
-                          <div className='min-w-0'>
-                             <p className='text-[13px] font-medium text-slate-800 dark:text-slate-200 truncate'>{name}</p>
-                             <p className='text-[11px] text-slate-400 dark:text-slate-500 truncate'>{userData?.email}</p>
-                          </div>  
-                          </div>
-                             <button 
-                             onClick={handleLogout}
-                             className='w-full flex items-center gap-2.5 px-3.5 py-2 text-[13px] text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors duration-150'>
-                                <LogOut size={15}/>
-                                Logout
-                             </button>
-                        </div>
-                     )}
+          {menuOpen && (
+            <div
+              className="zoo-fade-up absolute right-0 mt-1.5 w-52 overflow-hidden rounded-xl border py-1 shadow-2xl"
+              style={{ background: 'var(--zoo-surface)', borderColor: 'var(--zoo-border)', boxShadow: '0 16px 48px rgba(0,0,0,0.4)' }}
+            >
+              <div className="flex items-center gap-2.5 border-b px-3.5 py-3" style={{ borderColor: 'var(--zoo-border)' }}>
+                <div
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[12px] font-bold text-white"
+                  style={{ background: 'linear-gradient(135deg, #4f6ef7, #7c5cfc)' }}
+                >
+                  {initials}
                 </div>
+                <div className="min-w-0">
+                  <p className="truncate text-[13px] font-medium" style={{ color: 'var(--zoo-text)' }}>{name}</p>
+                  <p className="truncate text-[11px]" style={{ color: 'var(--zoo-text-3)' }}>{userData?.email}</p>
+                </div>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-[13px] transition-colors duration-150"
+                style={{ color: 'var(--zoo-danger)' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(248,113,113,0.08)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              >
+                <LogOut size={14} />
+                Sign out
+              </button>
             </div>
+          )}
         </div>
-    )
+      </div>
+    </header>
+  );
 }
 
-export default NavBar
+export default NavBar;

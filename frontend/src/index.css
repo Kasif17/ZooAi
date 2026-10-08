@@ -1,2 +1,143 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* ─── ZooAi Design Tokens ─────────────────────────────────────────── */
+:root {
+  --zoo-bg:          #07080f;
+  --zoo-surface:     #0d0e1a;
+  --zoo-surface-2:   #12131f;
+  --zoo-border:      rgba(255,255,255,0.07);
+  --zoo-border-2:    rgba(255,255,255,0.04);
+  --zoo-accent:      #4f6ef7;
+  --zoo-accent-2:    #7c5cfc;
+  --zoo-accent-glow: rgba(79,110,247,0.18);
+  --zoo-text:        #f0f1ff;
+  --zoo-text-2:      #8b8fa8;
+  --zoo-text-3:      #4a4d65;
+  --zoo-success:     #34d399;
+  --zoo-warning:     #fbbf24;
+  --zoo-danger:      #f87171;
+  --zoo-radius:      10px;
+  --zoo-radius-lg:   16px;
+  --zoo-radius-xl:   22px;
+}
+
+/* Light mode overrides */
+html:not(.dark) {
+  --zoo-bg:          #f4f5fb;
+  --zoo-surface:     #ffffff;
+  --zoo-surface-2:   #f0f1f8;
+  --zoo-border:      rgba(0,0,0,0.08);
+  --zoo-border-2:    rgba(0,0,0,0.05);
+  --zoo-accent-glow: rgba(79,110,247,0.10);
+  --zoo-text:        #0f1020;
+  --zoo-text-2:      #5a5e7a;
+  --zoo-text-3:      #a0a3b8;
+}
+
+/* ─── Base ────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--zoo-bg);
+  color: var(--zoo-text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Scrollbar ───────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--zoo-border); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+* { scrollbar-width: thin; scrollbar-color: var(--zoo-border) transparent; }
+
+/* ─── Accent gradient text ────────────────────────────────────────── */
+.zoo-gradient-text {
+  background: linear-gradient(135deg, #4f6ef7 0%, #7c5cfc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Glow button ─────────────────────────────────────────────────── */
+.zoo-btn-primary {
+  background: linear-gradient(135deg, #4f6ef7 0%, #6a52f5 100%);
+  box-shadow: 0 0 0 1px rgba(79,110,247,0.4), 0 4px 16px rgba(79,110,247,0.25);
+  transition: box-shadow 0.2s, transform 0.15s, opacity 0.15s;
+}
+.zoo-btn-primary:hover {
+  box-shadow: 0 0 0 1px rgba(79,110,247,0.6), 0 6px 24px rgba(79,110,247,0.35);
+  transform: translateY(-1px);
+}
+.zoo-btn-primary:active { transform: translateY(0); }
+
+/* ─── Card ────────────────────────────────────────────────────────── */
+.zoo-card {
+  background: var(--zoo-surface);
+  border: 1px solid var(--zoo-border);
+  border-radius: var(--zoo-radius-lg);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.zoo-card:hover {
+  border-color: rgba(79,110,247,0.25);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25), 0 0 0 1px rgba(79,110,247,0.1);
+}
+
+/* ─── Input ───────────────────────────────────────────────────────── */
+.zoo-input {
+  background: var(--zoo-surface-2);
+  border: 1px solid var(--zoo-border);
+  border-radius: var(--zoo-radius);
+  color: var(--zoo-text);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none;
+}
+.zoo-input:focus {
+  border-color: rgba(79,110,247,0.5);
+  box-shadow: 0 0 0 3px rgba(79,110,247,0.12);
+}
+.zoo-input::placeholder { color: var(--zoo-text-3); }
+
+/* ─── Skeleton shimmer ────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.zoo-skeleton {
+  background: linear-gradient(90deg, var(--zoo-surface) 25%, var(--zoo-surface-2) 50%, var(--zoo-surface) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.6s infinite linear;
+  border-radius: var(--zoo-radius);
+}
+
+/* ─── AI thinking dots ────────────────────────────────────────────── */
+@keyframes blink { 0%,80%,100% { opacity:0.2 } 40% { opacity:1 } }
+.zoo-dot { animation: blink 1.4s infinite both; }
+.zoo-dot:nth-child(2) { animation-delay: 0.2s; }
+.zoo-dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* ─── Fade-in ─────────────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.zoo-fade-up { animation: fadeUp 0.22s ease-out both; }
+
+/* ─── Active nav indicator ────────────────────────────────────────── */
+.zoo-nav-active {
+  background: rgba(79,110,247,0.12);
+  border: 1px solid rgba(79,110,247,0.2);
+  color: #7c9bff;
+}
+
+/* ─── Reduced motion ──────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

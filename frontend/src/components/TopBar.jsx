@@ -1,54 +1,84 @@
-import React from 'react'
-import { useSelector } from 'react-redux'
-import { motion } from "motion/react"
-import { useState } from 'react'
-import { Code2, Eye } from 'lucide-react'
-function TopBar({showPreview,setShowPreview}) {
-    const { currentProject } = useSelector(state => state.project)
-   
-    return (
-        <div className='relative flex h-12 items-center justify-between border-b border-white/[0.06] bg-[#111113]/90 px-4 backdrop-blur-xl'>
-            <div className='flex items-center gap-3'>
-                <div className='text-white  text-lg font-bold text-transparent'>
-                    VertexAI
-                </div>
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { motion } from 'motion/react';
+import { Code2, Eye, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-                <div className='h-4 w-px bg-white/10' />
+function TopBar({ showPreview, setShowPreview }) {
+  const { currentProject } = useSelector(state => state.project);
+  const navigate = useNavigate();
 
-                <div className='flex items-center gap-2'>
-                    <div className='flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[13px]'>
-                        📁
-                    </div>
-                    <div className='max-w-[220px] truncate text-sm font-medium text-zinc-300'>
-                        {currentProject?.name || "project"}
-                    </div>
-                </div>
+  return (
+    <header
+      className="relative z-20 flex h-12 shrink-0 items-center justify-between border-b px-4"
+      style={{ background: 'var(--zoo-surface)', borderColor: 'var(--zoo-border)' }}
+    >
+      {/* Left: breadcrumb */}
+      <div className="flex items-center gap-2 min-w-0">
+        <button
+          onClick={() => navigate('/')}
+          className="flex items-center gap-1.5 shrink-0"
+          aria-label="Go to dashboard"
+        >
+          <img src="/ZooAi.png" alt="ZooAi" className="h-5 w-5 rounded object-contain" />
+          <span className="hidden text-[13px] font-bold sm:inline" style={{ color: 'var(--zoo-text)' }}>
+            Zoo<span className="zoo-gradient-text">Ai</span>
+          </span>
+        </button>
 
-            </div>
-            <div className='flex items-center gap-1.5'>
-                <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setShowPreview?.((v) => !v)}
-                    title={showPreview ? "Show Editor" : "Show Preview"}
-                    className={`relative flex items-center justify-center rounded-lg p-2 transition-colors ${showPreview ? "text-sky-400" : "text-zinc-400 hover:text-zinc-200"
-                        }`}
+        <ChevronRight size={13} style={{ color: 'var(--zoo-text-3)' }} />
 
-                >
-                    <motion.div
-                        className="absolute inset-0 rounded-lg bg-white/[0.06]"
-                        transition={{ type: "spring", duration: 0.35, bounce: 0.15 }}
-                    />
-
-                    {showPreview?<Eye size={16} className='relative'/>:<Code2 size={16} className='relative'/>}
-
-                </motion.button>
-
-
-
-            </div>
+        <div className="flex min-w-0 items-center gap-1.5">
+          <span className="text-base">📁</span>
+          <span className="max-w-[180px] truncate text-[13px] font-medium" style={{ color: 'var(--zoo-text)' }}>
+            {currentProject?.name || 'Project'}
+          </span>
         </div>
-    )
+      </div>
+
+      {/* Right: editor/preview toggle */}
+      <div
+        className="flex items-center gap-0.5 rounded-lg border p-1"
+        style={{ background: 'var(--zoo-surface-2)', borderColor: 'var(--zoo-border)' }}
+      >
+        <button
+          onClick={() => setShowPreview?.(false)}
+          className={`relative flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[11px] font-semibold transition-colors ${!showPreview ? 'text-white' : ''}`}
+          style={!showPreview ? {} : { color: 'var(--zoo-text-3)' }}
+          aria-pressed={!showPreview}
+        >
+          {!showPreview && (
+            <motion.div
+              layoutId="tab-bg"
+              className="absolute inset-0 rounded-md"
+              style={{ background: 'var(--zoo-accent)', opacity: 0.9 }}
+              transition={{ type: 'spring', duration: 0.35, bounce: 0.15 }}
+            />
+          )}
+          <Code2 size={12} className="relative" />
+          <span className="relative hidden sm:inline">Editor</span>
+        </button>
+
+        <button
+          onClick={() => setShowPreview?.(true)}
+          className={`relative flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[11px] font-semibold transition-colors ${showPreview ? 'text-white' : ''}`}
+          style={showPreview ? {} : { color: 'var(--zoo-text-3)' }}
+          aria-pressed={showPreview}
+        >
+          {showPreview && (
+            <motion.div
+              layoutId="tab-bg"
+              className="absolute inset-0 rounded-md"
+              style={{ background: 'var(--zoo-accent)', opacity: 0.9 }}
+              transition={{ type: 'spring', duration: 0.35, bounce: 0.15 }}
+            />
+          )}
+          <Eye size={12} className="relative" />
+          <span className="relative hidden sm:inline">Preview</span>
+        </button>
+      </div>
+    </header>
+  );
 }
 
-export default TopBar
+export default TopBar;

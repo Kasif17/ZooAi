@@ -1,198 +1,167 @@
-import { AnimatePresence, motion } from 'motion/react'
-import React, { useEffect, useState } from 'react'
-import { getFileIcon } from '../utils/customizeIcon'
-import { Check, Circle, Loader2, Save, X } from 'lucide-react'
-import { updateFile } from '../features/file'
-import { act } from 'react'
+import { AnimatePresence, motion } from 'motion/react';
+import React, { useEffect, useState } from 'react';
+import { getFileIcon } from '../utils/customizeIcon';
+import { Check, FileCode, Loader2, Save, X } from 'lucide-react';
+import { updateFile } from '../features/file';
 import MonacoEditor from '@monaco-editor/react';
 
-function Editor({ activeTab,
-  openTabs,
-  setOpenTabs,
-  setActiveTab }) {
+function Editor({ activeTab, openTabs, setOpenTabs, setActiveTab }) {
+  const [saving, setSaving] = useState(false);
+  const [justSaved, setJustSaved] = useState(false);
+  const [code, setCode] = useState('');
 
-    useEffect(()=>{
-       setCode(activeTab?.content)
-    },[activeTab])
+  useEffect(() => { setCode(activeTab?.content ?? ''); }, [activeTab]);
 
-  const [saving, setSaving] = useState(false)
-  const [justSaved, setJustSaved] = useState(false)
-  const [code, setCode] = useState("")
-
-  const handleCloseTab = (e,id) => {
-    e.stopPropagation()
-    const result = openTabs.filter((tab) => tab._id !== id)
-    setOpenTabs(result)
-    if(activeTab?._id===id){
-      setActiveTab(result.length?result[result.length-1]:null)
-      console.log(result)
-      console.log(activeTab)
-    }
-  }
-
-  if(!activeTab)return (
-    <div className='flex flex-1 flex-col items-center justify-center gap-3 bg-[#0a0a0c] text-zinc-600'>
-        <div className='flex h-14 w-14 items-center justify-center rounded-2xl border border-white/[0.06] bg-white/[0.02]'>
-         <Circle  size={22} className="text-zinc-700"/>
-        </div>
-        <div className='flex flex-col items-center gap-1'>
-         <span className='text-sm font-medium text-zinc-400'>No File Open</span>
-         <span className='text-xs text-zinc-600'>Select a file from Explorer to start editing</span>
-        </div>
-    </div>
-  )
+  const handleCloseTab = (e, id) => {
+    e.stopPropagation();
+    const result = openTabs.filter(tab => tab._id !== id);
+    setOpenTabs(result);
+    if (activeTab?._id === id) setActiveTab(result.length ? result[result.length - 1] : null);
+  };
 
   const save = async () => {
     if (!activeTab) return;
+    setSaving(true);
     try {
-      setSaving(true)
-      await updateFile({ name: activeTab?.name, content: code, id: activeTab?._id })
-      setActiveTab({ ...activeTab, content: code })
-      setOpenTabs((tabs) => tabs.map((tab) => tab._id == activeTab._id ? { ...tab, content: code } : tab))
-      setSaving(false)
-      setJustSaved(true)
-      setTimeout(() => {
-        setJustSaved(false)
-      }, 1500)
-    } catch (error) {
-      setSaving(false)
-      console.log(error)
-    }
-  }
-  const ActiveIcon = getFileIcon(activeTab?.name).icon
-  const activeColor = getFileIcon(activeTab?.name).color
-  return (
-    <div className='flex flex-1 flex-col bg-[#0a0a0c]'>
-      <div className='flex h-10 shrink-0 items-center overflow-x-auto border-b border-white/[0.06] bg-[#111113]/90'>
-        <AnimatePresence initial={false}>
-          {openTabs.map((tab) => {
-            const active = activeTab?._id == tab?._id
-            const { icon: Icon, color } = getFileIcon(tab?.name)
+      await updateFile({ name: activeTab.name, content: code, id: activeTab._id });
+      setActiveTab({ ...activeTab, content: code });
+      setOpenTabs(tabs => tabs.map(t => t._id === activeTab._id ? { ...t, content: code } : t));
+      setJustSaved(true);
+      setTimeout(() => setJustSaved(false), 1500);
+    } catch (err) { console.error(err); }
+    setSaving(false);
+  };
 
+  if (!activeTab) return (
+    <div
+      className="flex flex-1 flex-col items-center justify-center gap-3"
+      style={{ background: 'var(--zoo-bg)' }}
+    >
+      <div
+        className="flex h-14 w-14 items-center justify-center rounded-2xl border"
+        style={{ background: 'var(--zoo-surface)', borderColor: 'var(--zoo-border)', color: 'var(--zoo-text-3)' }}
+      >
+        <FileCode size={22} />
+      </div>
+      <div className="text-center">
+        <p className="text-[14px] font-medium" style={{ color: 'var(--zoo-text-2)' }}>No file open</p>
+        <p className="mt-0.5 text-[12px]" style={{ color: 'var(--zoo-text-3)' }}>Select a file from the explorer</p>
+      </div>
+    </div>
+  );
+
+  const { icon: ActiveIcon, color: activeColor } = getFileIcon(activeTab.name);
+
+  return (
+    <div className="flex flex-1 flex-col" style={{ background: 'var(--zoo-bg)' }}>
+      {/* Tabs */}
+      <div
+        className="flex h-10 shrink-0 items-center overflow-x-auto border-b"
+        style={{ background: 'var(--zoo-surface)', borderColor: 'var(--zoo-border)' }}
+      >
+        <AnimatePresence initial={false}>
+          {openTabs.map(tab => {
+            const active = activeTab?._id === tab._id;
+            const { icon: Icon, color } = getFileIcon(tab.name);
             return (
               <motion.div
+                key={tab._id}
                 initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: "auto" }}
+                animate={{ opacity: 1, width: 'auto' }}
                 exit={{ opacity: 0, width: 0 }}
                 transition={{ duration: 0.15 }}
                 onClick={() => setActiveTab(tab)}
-                className={`group relative flex h-full cursor-pointer items-center gap-2 whitespace-nowrap border-r border-white/[0.05] px-3.5 transition-colors ${active ? "bg-[#0a0a0c] text-white" : "text-zinc-500 hover:bg-white/[0.02] hover:text-zinc-300"
-                  }`}
-
+                className="group relative flex h-full cursor-pointer items-center gap-2 whitespace-nowrap border-r px-3.5 transition-colors"
+                style={{
+                  borderColor: 'var(--zoo-border)',
+                  background: active ? 'var(--zoo-bg)' : 'transparent',
+                  color: active ? 'var(--zoo-text)' : 'var(--zoo-text-3)',
+                }}
+                onMouseEnter={e => { if (!active) e.currentTarget.style.color = 'var(--zoo-text-2)'; }}
+                onMouseLeave={e => { if (!active) e.currentTarget.style.color = 'var(--zoo-text-3)'; }}
               >
-
-                <Icon size={14} className={`${color}`} />
-                <span className='text-[13px]'>{tab?.name}</span>
-
-                <button className="rounded p-0.5 text-zinc-500 opacity-0 hover:bg-white/10 hover:text-white group-hover:opacity-100"
-
-                  onClick={(e) => handleCloseTab(e,tab?._id)}>
-                  <X size={13} />
+                <Icon size={13} className={color} />
+                <span className="text-[12.5px]">{tab.name}</span>
+                <button
+                  className="rounded p-0.5 opacity-0 transition-all group-hover:opacity-100"
+                  style={{ color: 'var(--zoo-text-3)' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--zoo-surface-2)'; e.currentTarget.style.color = 'var(--zoo-text)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--zoo-text-3)'; }}
+                  onClick={e => handleCloseTab(e, tab._id)}
+                  aria-label={`Close ${tab.name}`}
+                >
+                  <X size={12} />
                 </button>
-
                 {active && (
-                  <motion.div
-                    className="absolute inset-x-0 bottom-0 h-[2px] bg-gradient-to-r from-sky-400 to-violet-400"
-                    transition={{ duration: 0.2, ease: "easeOut" }}
-
+                  <div
+                    className="absolute inset-x-0 bottom-0 h-[2px] rounded-t"
+                    style={{ background: 'linear-gradient(90deg, #4f6ef7, #7c5cfc)' }}
                   />
                 )}
-
               </motion.div>
-
-            )
+            );
           })}
         </AnimatePresence>
       </div>
 
-      <div className='flex h-10 shrink-0 items-center gap-4 border-b border-white/[0.06] px-4'>
-
-        <div className='flex items-center gap-2 text-zinc-400'>
-          <ActiveIcon size={14} className={`${activeColor}`} />
-          <span className='text-[13px]'>{activeTab?.name}</span>
+      {/* File info + save bar */}
+      <div
+        className="flex h-9 shrink-0 items-center justify-between border-b px-4"
+        style={{ background: 'var(--zoo-surface)', borderColor: 'var(--zoo-border)' }}
+      >
+        <div className="flex items-center gap-2" style={{ color: 'var(--zoo-text-2)' }}>
+          <ActiveIcon size={13} className={activeColor} />
+          <span className="text-[12.5px]">{activeTab.name}</span>
         </div>
 
-
-
-        <motion.div
+        <motion.button
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
           onClick={save}
           disabled={saving}
-          className="flex items-center gap-2 rounded-lg bg-gradient-to-b from-sky-500 to-sky-600 px-3 py-1.5 text-xs font-medium text-white shadow-[0_1px_0_rgba(255,255,255,0.2)_inset] transition-colors hover:from-sky-400 hover:to-sky-500 disabled:cursor-not-allowed disabled:opacity-40"
-
+          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-semibold text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+          style={{ background: 'linear-gradient(135deg, #4f6ef7, #6a52f5)', boxShadow: '0 2px 8px rgba(79,110,247,0.3)' }}
         >
-          <AnimatePresence initial={false} mode='wait'>
-            {
-              (
-                saving ?
-                  (
-                    <motion.span
-                      key="saving"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="flex items-center gap-2"
-
-                    >
-                      <Loader2 size={13} className="animate-spin" />
-                      Saving
-                    </motion.span>
-                  ) : justSaved ? (
-                    <motion.span
-                      key="saved"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="flex items-center gap-2"
-
-                    >
-                      <Check size={13} />
-                      Saved
-                    </motion.span>
-                  ) :
-                    (
-                      <motion.span
-                        key="save"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="flex items-center gap-2"
-                      >
-                        <Save size={13} />
-                        Save
-                      </motion.span>
-                    )
-              )
-            }
+          <AnimatePresence mode="wait" initial={false}>
+            {saving ? (
+              <motion.span key="saving" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-1.5">
+                <Loader2 size={12} className="animate-spin" /> Saving
+              </motion.span>
+            ) : justSaved ? (
+              <motion.span key="saved" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-1.5">
+                <Check size={12} /> Saved
+              </motion.span>
+            ) : (
+              <motion.span key="save" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-1.5">
+                <Save size={12} /> Save
+              </motion.span>
+            )}
           </AnimatePresence>
-
-        </motion.div>
-
+        </motion.button>
       </div>
 
-      <div className='min-h-0 flex-1'>
+      {/* Monaco */}
+      <div className="min-h-0 flex-1">
         <MonacoEditor
           height="100%"
           theme="vs-dark"
-          language={activeTab?.language || "plaintext"}
+          language={activeTab.language || 'plaintext'}
           value={code}
-          onChange={(value) => setCode(value || "")}
+          onChange={v => setCode(v || '')}
           options={{
-            fontSize: 14,
+            fontSize: 13,
             automaticLayout: true,
             minimap: { enabled: false },
-            wordWrap: "on",
+            wordWrap: 'on',
             scrollBeyondLastLine: false,
             padding: { top: 12 },
+            fontFamily: "'JetBrains Mono', 'Fira Code', Menlo, monospace",
+            fontLigatures: true,
           }}
-
         />
       </div>
-
-
     </div>
-  )
+  );
 }
 
-export default Editor
+export default Editor;

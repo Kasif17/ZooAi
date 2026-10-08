@@ -1,73 +1,64 @@
-import React from 'react'
-import { motion } from "motion/react"
-import { FolderTree, RefreshCcw } from 'lucide-react'
-import Folder from './Folder'
-function Explorer(
-    {
-        projectId, tree, reloadTree,openFile
-    }
-) {
-    return (
-        <motion.div
-            initial={{ opacity: 0, x: -16, width: 0 }}
-            animate={{ opacity: 1, x: 0, width: 288 }}
-            exit={{ opacity: 0, x: -16, width: 0 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="flex flex-col overflow-hidden border-r border-white/[0.06] bg-[#111113]/90 backdrop-blur-xl"
+import React from 'react';
+import { motion } from 'motion/react';
+import { FolderTree, RefreshCcw } from 'lucide-react';
+import Folder from './Folder';
 
+function Explorer({ projectId, tree, reloadTree, openFile }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -16, width: 0 }}
+      animate={{ opacity: 1, x: 0, width: 260 }}
+      exit={{ opacity: 0, x: -16, width: 0 }}
+      transition={{ duration: 0.2, ease: 'easeOut' }}
+      className="flex flex-col overflow-hidden border-r"
+      style={{ background: 'var(--zoo-surface)', borderColor: 'var(--zoo-border)' }}
+    >
+      {/* Header */}
+      <div
+        className="flex h-10 w-[260px] shrink-0 items-center justify-between border-b px-3"
+        style={{ borderColor: 'var(--zoo-border)' }}
+      >
+        <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--zoo-text-3)' }}>
+          Explorer
+        </span>
+        <motion.button
+          whileHover={{ rotate: 60 }}
+          whileTap={{ scale: 0.9 }}
+          transition={{ duration: 0.2 }}
+          onClick={reloadTree}
+          className="flex h-6 w-6 items-center justify-center rounded-md transition-colors"
+          style={{ color: 'var(--zoo-text-3)' }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'var(--zoo-surface-2)'; e.currentTarget.style.color = 'var(--zoo-text)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--zoo-text-3)'; }}
+          title="Refresh"
+          aria-label="Refresh file tree"
         >
+          <RefreshCcw size={13} />
+        </motion.button>
+      </div>
 
-            <div className='flex h-10 w-72 shrink-0 items-center justify-between border-b border-white/[0.06] px-3'>
-                <span className='text-[11px] font-semibold tracking-wider text-zinc-500'>
-                    EXPLORER
-                </span>
-
-                <motion.button
-                    whileHover={{ rotate: 60 }}
-                    whileTap={{ scale: 0.9 }}
-                    transition={{ duration: 0.2 }}
-                    onClick={reloadTree}
-                    className="rounded-md p-1 text-zinc-400 transition-colors hover:bg-white/[0.07] hover:text-white"
-                    title="Refresh"
-                >
-                    <RefreshCcw size={14} />
-                </motion.button>
-            </div>
-
-            <div className='
-          w-72 flex-1 overflow-y-auto px-1 py-2
-          [&::-webkit-scrollbar]:w-1.5
-          [&::-webkit-scrollbar-track]:bg-transparent
-          [&::-webkit-scrollbar-thumb]:rounded-full
-          [&::-webkit-scrollbar-thumb]:bg-white/[0.08]
-          hover:[&::-webkit-scrollbar-thumb]:bg-white/[0.15]
-          [&::-webkit-scrollbar-thumb]:transition-colors
-        '
-                style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.1) transparent" }}
-            >
-                {tree.length == 0 ? (
-                    <div className='flex flex-col items-center gap-2 px-3 py-10 text-center'>
-                        <FolderTree size={22} className="text-zinc-700" />
-                        <span className="text-[12px] text-zinc-600">Empty WorkSpace</span>
-
-                    </div>
-                ) : (
-
-                    tree.map((node) => (
-                        <Folder
-                            projectId={projectId}
-                            node={node}
-                            tree={tree}
-                            reloadTree={reloadTree}
-                            openFile={openFile}
-                        />
-                    ))
-
-                )}
-            </div>
-
-        </motion.div>
-    )
+      {/* Tree */}
+      <div className="w-[260px] flex-1 overflow-y-auto px-1 py-2">
+        {tree.length === 0 ? (
+          <div className="flex flex-col items-center gap-2 px-3 py-10 text-center">
+            <FolderTree size={20} style={{ color: 'var(--zoo-text-3)' }} />
+            <span className="text-[12px]" style={{ color: 'var(--zoo-text-3)' }}>Empty workspace</span>
+          </div>
+        ) : (
+          tree.map(node => (
+            <Folder
+              key={node._id}
+              projectId={projectId}
+              node={node}
+              tree={tree}
+              reloadTree={reloadTree}
+              openFile={openFile}
+            />
+          ))
+        )}
+      </div>
+    </motion.div>
+  );
 }
 
-export default Explorer
+export default Explorer;

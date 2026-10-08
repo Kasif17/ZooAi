@@ -1,121 +1,101 @@
-import React, { act } from 'react'
-import { motion } from "motion/react"
-import { Coins, Folder, Star, Zap } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
-import { useState } from 'react'
-import { useSelector } from 'react-redux'
+import React from 'react';
+import { motion } from 'motion/react';
+import { Coins, Folder, Star, Zap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+
+const NavItem = ({ icon: Icon, label, active, onClick }) => (
+  <motion.button
+    whileTap={{ scale: 0.97 }}
+    onClick={onClick}
+    className={`relative flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-colors duration-150 ${active ? 'zoo-nav-active' : ''}`}
+    style={active ? {} : { color: 'var(--zoo-text-2)' }}
+    onMouseEnter={e => { if (!active) e.currentTarget.style.background = 'var(--zoo-surface-2)'; }}
+    onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'transparent'; }}
+    aria-current={active ? 'page' : undefined}
+  >
+    <Icon size={16} strokeWidth={active ? 2.2 : 1.8} />
+    <span>{label}</span>
+  </motion.button>
+);
+
 function SideBar({ activeSession, setActiveSession }) {
-    const navigate = useNavigate()
-    const {userData}=useSelector(state=>state.user)
-    return (
-        <div className='flex h-full w-64 shrink-0 flex-col border-r border-slate-200/70 bg-white/60 px-3 py-5 font-sans backdrop-blur-xl transition-colors duration-300 dark:border-white/[0.06] dark:bg-white/[0.02]'>
-            <div className='flex flex-col gap-1'>
-                <motion.div
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => setActiveSession("projects")}
-                    className={`relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13.5px] font-medium cursor-pointer transition-colors duration-150 ${activeSession == "projects" ? "text-slate-900 dark:text-white" : "text-slate-500 hover:bg-slate-100/80 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-white/[0.04] dark:hover:text-slate-200"}`}
-                >
-                    {activeSession == "projects" && (
-                        <div className='absolute inset-0 rounded-lg border border-slate-900/10 bg-slate-900/5 dark:border-white/10 dark:bg-white/10' />
+  const navigate = useNavigate();
+  const { userData } = useSelector(state => state.user);
 
-                    )}
-                    <Folder
-                        size={17}
-                        strokeWidth={2}
-                        className="relative"
-                    />
-                    <span className='relative'>
-                        Projects
-                    </span>
-                </motion.div>
+  return (
+    <aside
+      className="flex h-full w-60 shrink-0 flex-col border-r px-3 py-4"
+      style={{ background: 'var(--zoo-surface)', borderColor: 'var(--zoo-border)' }}
+    >
+      {/* Section label */}
+      <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'var(--zoo-text-3)' }}>
+        Workspace
+      </p>
 
-                <motion.div
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => setActiveSession("starred")}
-                    className={`relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13.5px] font-medium cursor-pointer transition-colors duration-150 ${activeSession == "starred" ? "text-slate-900 dark:text-white" : "text-slate-500 hover:bg-slate-100/80 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-white/[0.04] dark:hover:text-slate-200"}`}
-                >
-                    {activeSession == "starred" && (
-                        <div className='absolute inset-0 rounded-lg border border-slate-900/10 bg-slate-900/5 dark:border-white/10 dark:bg-white/10' />
+      <nav className="flex flex-col gap-0.5">
+        <NavItem
+          icon={Folder}
+          label="Projects"
+          active={activeSession === 'projects'}
+          onClick={() => setActiveSession('projects')}
+        />
+        <NavItem
+          icon={Star}
+          label="Starred"
+          active={activeSession === 'starred'}
+          onClick={() => setActiveSession('starred')}
+        />
+      </nav>
 
-                    )}
+      <div className="my-4 h-px" style={{ background: 'var(--zoo-border)' }} />
 
-                    <Star
-                        size={17}
-                        strokeWidth={2}
-                        className="relative"
-                    />
-                    <span className='relative'>
-                        Starred
-                    </span>
-
-                </motion.div>
+      {/* Credits card */}
+      <div
+        className="rounded-xl border p-3.5"
+        style={{ background: 'var(--zoo-surface-2)', borderColor: 'var(--zoo-border)' }}
+      >
+        <div className="mb-1 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div
+              className="flex h-6 w-6 items-center justify-center rounded-md"
+              style={{ background: 'rgba(79,110,247,0.15)', color: '#7c9bff' }}
+            >
+              <Coins size={13} />
             </div>
-            <div className='my-4 h-px bg-slate-200/70 dark:bg-white/[0.06]' />
-             
-<div className='mb-3
-          rounded-xl
-          border
-          border-slate-200/70
-          bg-white/70
-          p-3.5
-          shadow-sm
-          backdrop-blur-xl
-          dark:border-white/[0.07]
-          dark:bg-white/[0.03]
-          dark:shadow-none
-'>
-<div className='flex items-center justify-between'>
-    <div className='flex items-center gap-2'>
-         <div className=' flex
-                h-7
-                w-7
-                items-center
-                justify-center
-                rounded-lg
-                bg-slate-900/5
-                text-slate-700
-                dark:bg-white/10
-                dark:text-white
-'><Coins size={14}/></div> 
-         <span className="
-                text-[12px]
-                font-medium
-                text-slate-600
-                dark:text-slate-400
-              "
->AI Credits</span> 
-         <span  className="
-              text-[15px]
-              font-bold
-              text-slate-900
-              dark:text-white
-            "
->{userData?.credits || 0}</span>
-    </div>
-</div>
-</div>
-
-            <div className='my-4 h-px bg-slate-200/70 dark:bg-white/[0.06]' />
-
-            <div className='rounded-xl border border-slate-200/70 bg-white/70 p-3.5 shadow-sm backdrop-blur-xl dark:border-white/[0.07] dark:bg-white/[0.03] dark:shadow-none'>
-                <p className='mb-1 text-[12.5px] font-medium text-slate-700 dark:text-slate-300'>Upgrade Plan</p>
-                <p className='mb-3 text-[11.5px] leading-snug text-slate-400 dark:text-slate-500'>Upgrade to Pro for more credits</p>
-                <motion.button
-                    onClick={() => navigate("/plan")}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.97 }}
-                    className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-slate-900 py-2 text-[12.5px] font-semibold text-white shadow-sm transition-opacity duration-150 hover:opacity-90 dark:bg-white dark:text-slate-900"
-
-                >
-                    <Zap size={13}
-                        fill="currentColor"
-                    />
-                    Upgrade Now
-                </motion.button>
-            </div>
-
+            <span className="text-[12px] font-medium" style={{ color: 'var(--zoo-text-2)' }}>AI Credits</span>
+          </div>
+          <span className="text-[15px] font-bold" style={{ color: 'var(--zoo-text)' }}>
+            {userData?.credits ?? 0}
+          </span>
         </div>
-    )
+        <div
+          className="mt-2 h-1.5 w-full overflow-hidden rounded-full"
+          style={{ background: 'var(--zoo-border)' }}
+        >
+          <div
+            className="h-full rounded-full transition-all duration-500"
+            style={{
+              width: `${Math.min(100, ((userData?.credits ?? 0) / 100) * 100)}%`,
+              background: 'linear-gradient(90deg, #4f6ef7, #7c5cfc)',
+            }}
+          />
+        </div>
+      </div>
+
+      <div className="mt-3">
+        <motion.button
+          onClick={() => navigate('/plan')}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.97 }}
+          className="zoo-btn-primary flex w-full items-center justify-center gap-1.5 rounded-lg py-2.5 text-[12.5px] font-semibold text-white"
+        >
+          <Zap size={13} fill="currentColor" />
+          Upgrade Plan
+        </motion.button>
+      </div>
+    </aside>
+  );
 }
 
-export default SideBar
+export default SideBar;
